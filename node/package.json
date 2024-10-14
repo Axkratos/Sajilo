@@ -1,13 +1,13 @@
 {
-  "name": "mytube",
+  "name": "SajiloRehab",
   "version": "1.0.0",
-  "description": "A video streaming platform",
+  "description": "Posture Corrector",
   "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
   },
-  "author": "Nishan Ghimire",
+  "author": "Anup Adhikari",
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^3.0.2",
