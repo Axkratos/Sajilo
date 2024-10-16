@@ -11,7 +11,6 @@
     "predeploy": "vite build",
     "deploy": "gh-pages -d dist"
   },
-  
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
@@ -28,6 +27,10 @@
     "axios": "^1.7.7",
     "chart.js": "^4.4.4",
     "framer-motion": "^11.11.0",
+    "freegptjs": "^0.0.2",
+    "g4f": "^1.4.6",
+    "lodash": "^4.17.21",
+    "lodash.throttle": "^4.1.1",
     "openai": "^4.65.0",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",

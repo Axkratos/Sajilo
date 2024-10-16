@@ -96,27 +96,39 @@ def suggest_exercises():
 
 
 
+
 # Curl counter variables
-counter = 0 
+counter = 0
 stage = "up"  # Initialize stage to 'up' to start the counting correctly
+is_paused = False  # Variable to control whether the rep counter is paused
+is_stopped = False  # Variable to control whether the rep counter is stopped
 
 # Function to calculate the angle between three points
 def calculate_angle(a, b, c):
     a = np.array(a)  # First joint (e.g., shoulder)
     b = np.array(b)  # Middle joint (e.g., elbow)
     c = np.array(c)  # Last joint (e.g., wrist)
-    
+
     radians = np.arctan2(c[1] - b[1], c[0] - b[0]) - np.arctan2(a[1] - b[1], a[0] - b[0])
     angle = np.abs(radians * 180.0 / np.pi)
-    
+
     if angle > 180.0:
         angle = 360 - angle
-        
+
     return angle
 
 @app.route('/api/count_reps', methods=['POST'])
 def count_reps():
-    global counter, stage
+    global counter, stage, is_paused, is_stopped
+
+    # If the counter is stopped, don't count any reps and reset the counter
+    if is_stopped:
+        return jsonify({"reps": 0, "message": "Rep counter is stopped."})
+
+    # If the counter is paused, just return the current rep count without any changes
+    if is_paused:
+        return jsonify({"reps": counter, "message": "Rep counter is paused."})
+
     data = request.get_json()
 
     # Validate incoming data
@@ -125,7 +137,7 @@ def count_reps():
 
     angle = data['angle']
 
-    # Curl counter logic
+    # Curl counter logic (only if not paused or stopped)
     if angle > 160 and stage != "down":  # Moving to the down stage
         stage = "down"
     elif angle < 30 and stage == "down":  # Moving to the up stage
@@ -133,6 +145,63 @@ def count_reps():
         counter += 1  # Increment counter only when transitioning from down to up
 
     return jsonify({"reps": counter})
+
+# Route to pause the rep counter
+@app.route('/pause', methods=['POST'])
+def pause_counter():
+    global is_paused, is_stopped
+    if not is_stopped:
+        is_paused = True
+    return jsonify({"message": "Rep counter paused."})
+
+# Route to stop the rep counter and reset the counter to 0
+@app.route('/stop', methods=['POST'])
+def stop_counter():
+    global counter, is_paused, is_stopped
+    counter = 0
+    is_paused = False  # Reset pause state when stopping
+    is_stopped = True  # Set stopped to true
+    return jsonify({"message": "Rep counter stopped and reset to 0."})
+
+# Route to resume the rep counter
+@app.route('/resume', methods=['POST'])
+def resume_counter():
+    global is_paused, is_stopped
+    if is_stopped:
+        return jsonify({"message": "Cannot resume because the counter is stopped. Please start the exercise again."}), 400
+
+    is_paused = False
+    is_stopped = False
+    return jsonify({"message": "Rep counter resumed."})
+
+# Route to start the counter again after stopping
+@app.route('/start', methods=['POST'])
+def start_counter():
+    global counter, is_paused, is_stopped
+    counter = 0  # Reset the counter
+    is_paused = False
+    is_stopped = False  # Reset the stopped state
+    return jsonify({"message": "Rep counter started from zero."})
+
+# @app.route('/api/count_reps', methods=['POST'])
+# def count_reps():
+#     global counter, stage
+#     data = request.get_json()
+
+#     # Validate incoming data
+#     if 'angle' not in data:
+#         return jsonify({"error": "Angle parameter is required."}), 400
+
+#     angle = data['angle']
+
+#     # Curl counter logic
+#     if angle > 160 and stage != "down":  # Moving to the down stage
+#         stage = "down"
+#     elif angle < 30 and stage == "down":  # Moving to the up stage
+#         stage = "up"
+#         counter += 1  # Increment counter only when transitioning from down to up
+
+#     return jsonify({"reps": counter})
 
 
 # Run the app
