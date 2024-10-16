@@ -46,7 +46,7 @@ const Chat = () => {
 
         while (!validDataReceived) {
             try {
-                const response = await axios.post('https://sajilorehab.onrender.com/api/suggest-exercises', {
+                const response = await axios.post('http://localhost:5000/api/suggest-exercises', {
                     message: message,
                     user_id: userId,
                 });

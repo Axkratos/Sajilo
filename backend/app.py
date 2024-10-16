@@ -3,7 +3,12 @@ from flask_cors import CORS
 from g4f.client import Client  # Importing g4f client package
 import os
 import numpy as np
+import sys
+import asyncio
 
+# This is needed for Windows compatibility with aiodns
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 app = Flask(__name__)
 # Enable CORS for all routes and all domains
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -61,7 +66,7 @@ def suggest_exercises():
         # Prepare the prompt to recommend exactly 4 exercises with descriptions
         prompt = (
             "You are a physiotherapy assistant. The user has reported the following injury: "
-            f"'{user_message}'. Based on this injury, recommend exactly four physiotherapy exercises from the following list: "
+            f"'{user_message}'. Based on this injury, recommend exactly one to four suitable available physiotherapy exercises from the following list: "
             f"{', '.join(exercise_details.keys())}. Please list the exercises along with their descriptions in the format: "
             "'exercise name': 'description'. Please ensure that the exercise names are presented without numbering and dont write any other things like I recommend as it goes against my backend model."
         )
